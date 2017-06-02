@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         fname = "{}/{}.txt".format(cwd, sample)
-        create_job = Job.wrapJobFn(create_file)
+        create_job = Job.wrapJobFn(create_file, fname)
 
         root_job.addChild(create_job)
 
