@@ -5,7 +5,7 @@ import os
 import sys
 import argparse
 import configuration
-import subprocess as sub
+import subprocess
 
 from toil.job import Job
 from toil.job import JobException
@@ -21,7 +21,7 @@ def spawn_batch_jobs(job):
 
 def create_file(job, fpath):
     job.fileStore.logToMaster("Creating file: {}\n".format(fpath))
-    sub.call(['touch', fpath])
+    subprocess.call(['touch', fpath])
     # job.fileStore.writeGlobalFile(fpath)
 
 
@@ -41,7 +41,7 @@ def run_and_log_command(command, logfile):
     with open(logfile, "wb") as err:
         sys.stdout.write("Executing {} and writing to logfile {}\n".format(command, logfile))
         err.write("Command: {}\n".format(command))
-        p = sub.Popen(command, stdout=sub.PIPE, stderr=err, shell=True)
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=err, shell=True)
         output = p.communicate()
         code = p.returncode
         if code:
@@ -70,38 +70,35 @@ def run_bwa_mem(job, config, name, samples):
     temp = "{}.bwa.sort.temp".format(name)
     logfile = "{}.bwa-align.log".format(name)
 
-    bwa_cmd = ["{}".format(config['bwa']['bin']),
-               "mem",
-               "-t",
-               "24",
-               "-M",
-               "-v",
-               "2",
-               "{}".format(config['reference']),
-               "{}".format(samples[name]['fastq1']),
-               "{}".format(samples[name]['fastq2'])]
+    cmd = ["{}".format(config['bwa']['bin']),
+           "mem",
+           "-t",
+           "24",
+           "-M",
+           "-v",
+           "2",
+           "{}".format(config['reference']),
+           "{}".format(samples[name]['fastq1']),
+           "{}".format(samples[name]['fastq2']),
+           "|",
+           "{}".format(config['samtools']['bin']),
+           "view",
+           "-u",
+           "-",
+           "{}".format(config['samtools']['bin']),
+           "sort",
+           "-@",
+           "24",
+           "-O",
+           "bam",
+           "-o",
+           "{}".format(output_bam),
+           "-T",
+           "{}".format(temp),
+           "-"]
 
-    view_cmd = ["{}".format(config['samtools']['bin']),
-                "view",
-                "-u",
-                "-"]
-
-    sort_cmd = ["{}".format(config['samtools']['bin']),
-                "sort",
-                "-@",
-                "24",
-                "-O",
-                "bam",
-                "-o",
-                "{}".format(output_bam),
-                "-T",
-                "{}".format(temp),
-                "-"]
-
-    command = "{} | {} | {}".format(" ".join(bwa_cmd), " ".join(view_cmd), " ".join(sort_cmd))
-
-    job.fileStore.logToMaster("BWA Command: {}\n".format(command))
-    run_and_log_command(command, logfile)
+    job.fileStore.logToMaster("BWA Command: {}\n".format(cmd))
+    subprocess.check_call(cmd)
 
     return output_bam
 
