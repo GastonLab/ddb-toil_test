@@ -20,7 +20,9 @@ def spawn_batch_jobs(job):
 
 
 def create_file(job, fpath):
-    job.fileStore.writeGlobalFile(fpath)
+    job.fileStore.logToMaster("Creating file: {}\n".format(fpath))
+    sub.call(['touch', fpath])
+    # job.fileStore.writeGlobalFile(fpath)
 
 
 if __name__ == "__main__":
