@@ -99,7 +99,7 @@ def run_bwa_mem(job, config, name, samples):
 
     command = " ".join(cmd)
     job.fileStore.logToMaster("BWA Command: {}\n".format(command))
-    subprocess.check_call(command)
+    subprocess.Popen(command, stdout=subprocess.PIPE, stderr=err, shell=True)
 
     return output_bam
 
