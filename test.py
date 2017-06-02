@@ -126,8 +126,8 @@ if __name__ == "__main__":
 
     for sample in samples:
         fname = "{}/{}.txt".format(cwd, sample)
-        align_job = Job.wrapJobFn(run_bwa_mem, config, sample, samples, cores=int(config['bwa']['num_cores']),
-                                  memory="{}G".format(config['bwa']['max_mem']))
+        align_job = Job.wrapJobFn(run_bwa_mem, config, sample, samples, cores=24,
+                                  memory="112G".format(config['bwa']['max_mem']))
 
         root_job.addChild(align_job)
 
