@@ -25,6 +25,87 @@ def create_file(job, fpath):
     # job.fileStore.writeGlobalFile(fpath)
 
 
+def run_and_log_command(command, logfile):
+    """This function uses the python subprocess method to run the specified command and writes all error to the
+    specified logfile
+
+    :param command: The command-line command to execute.
+    :type name: str.
+    :param logfile: The logfile to output error messages to.
+    :type logfile: str.
+    :returns:  Nothing
+    :raises: RuntimeError
+
+    """
+
+    with open(logfile, "wb") as err:
+        sys.stdout.write("Executing {} and writing to logfile {}\n".format(command, logfile))
+        err.write("Command: {}\n".format(command))
+        p = sub.Popen(command, stdout=sub.PIPE, stderr=err, shell=True)
+        output = p.communicate()
+        code = p.returncode
+        if code:
+            raise RuntimeError("An error occurred when executing the commandline: {}. "
+                               "Please check the logfile {} for details\n".format(command, logfile))
+
+
+def run_bwa_mem(job, config, name, samples):
+    """Run GATK's DiagnoseTargets against the supplied region
+
+    :param config: The configuration dictionary.
+    :type config: dict.
+    :param sample: sample name.
+    :type sample: str.
+    :param fastq1: Input FastQ File.
+    :type fastq1: str.
+    :param fastq2: Input FastQ File.
+    :type fastq2: str.
+    :returns:  str -- Aligned and sorted BAM file name.
+
+    """
+
+    job.fileStore.logToMaster("Running BWA for sample {}\n".format(name))
+
+    output_bam = "{}.bwa.sorted.bam".format(name)
+    temp = "{}.bwa.sort.temp".format(name)
+    logfile = "{}.bwa-align.log".format(name)
+
+    bwa_cmd = ["{}".format(config['bwa']['bin']),
+               "mem",
+               "-t",
+               "{}".format(config['bwa']['num_cores']),
+               "-M",
+               "-v",
+               "2",
+               "{}".format(config['reference']),
+               "{}".format(samples[name]['fastq1']),
+               "{}".format(samples[name]['fastq2'])]
+
+    view_cmd = ["{}".format(config['samtools']['bin']),
+                "view",
+                "-u",
+                "-"]
+
+    sort_cmd = ["{}".format(config['samtools']['bin']),
+                "sort",
+                "-@",
+                "{}".format(config['bwa']['num_cores']),
+                "-O",
+                "bam",
+                "-o",
+                "{}".format(output_bam),
+                "-T",
+                "{}".format(temp),
+                "-"]
+
+    command = "{} | {} | {}".format(" ".join(bwa_cmd), " ".join(view_cmd), " ".join(sort_cmd))
+
+    job.fileStore.logToMaster("BWA Command: {}\n".format(command))
+    run_and_log_command(command, logfile)
+
+    return output_bam
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
@@ -45,9 +126,10 @@ if __name__ == "__main__":
 
     for sample in samples:
         fname = "{}/{}.txt".format(cwd, sample)
-        create_job = Job.wrapJobFn(create_file, fname)
+        align_job = Job.wrapJobFn(run_bwa_mem, config, sample, samples, cores=int(config['bwa']['num_cores']),
+                                  memory="{}G".format(config['bwa']['max_mem']))
 
-        root_job.addChild(create_job)
+        root_job.addChild(align_job)
 
     # Start workflow execution
     Job.Runner.startToil(root_job, args)
