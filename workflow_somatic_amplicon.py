@@ -1089,38 +1089,38 @@ if __name__ == "__main__":
 
         # Create workflow from created jobs
         root_job.addChild(align_job)
-        align_job.addChild(add_job)
-        add_job.addChild(creator_job)
-        creator_job.addChild(realign_job)
-        realign_job.addChild(recal_job)
+        # align_job.addChild(add_job)
+        # add_job.addChild(creator_job)
+        # creator_job.addChild(realign_job)
+        # realign_job.addChild(recal_job)
+        #
+        # recal_job.addChild(spawn_variant_job)
+        #
+        # spawn_variant_job.addChild(coverage_job)
+        # spawn_variant_job.addChild(freebayes_job)
+        # spawn_variant_job.addChild(mutect_job)
+        # spawn_variant_job.addChild(vardict_job)
+        # spawn_variant_job.addChild(scalpel_job)
+        # spawn_variant_job.addChild(platypus_job)
+        # spawn_variant_job.addChild(pindel_job)
+        #
+        # spawn_variant_job.addFollowOn(spawn_normalization_job)
+        #
+        # spawn_normalization_job.addChild(normalization_job1)
+        # spawn_normalization_job.addChild(normalization_job2)
+        # spawn_normalization_job.addChild(normalization_job3)
+        # spawn_normalization_job.addChild(normalization_job4)
+        # spawn_normalization_job.addChild(normalization_job5)
+        # spawn_normalization_job.addChild(normalization_job6)
+        #
+        # spawn_normalization_job.addFollowOn(merge_job)
+        #
+        # merge_job.addChild(gatk_annotate_job)
+        # gatk_annotate_job.addChild(gatk_filter_job)
+        # gatk_filter_job.addChild(snpeff_job)
+        # snpeff_job.addChild(vcfanno_job)
 
-        recal_job.addChild(spawn_variant_job)
-
-        spawn_variant_job.addChild(coverage_job)
-        spawn_variant_job.addChild(freebayes_job)
-        spawn_variant_job.addChild(mutect_job)
-        spawn_variant_job.addChild(vardict_job)
-        spawn_variant_job.addChild(scalpel_job)
-        spawn_variant_job.addChild(platypus_job)
-        spawn_variant_job.addChild(pindel_job)
-
-        spawn_variant_job.addFollowOn(spawn_normalization_job)
-
-        spawn_normalization_job.addChild(normalization_job1)
-        spawn_normalization_job.addChild(normalization_job2)
-        spawn_normalization_job.addChild(normalization_job3)
-        spawn_normalization_job.addChild(normalization_job4)
-        spawn_normalization_job.addChild(normalization_job5)
-        spawn_normalization_job.addChild(normalization_job6)
-
-        spawn_normalization_job.addFollowOn(merge_job)
-
-        merge_job.addChild(gatk_annotate_job)
-        gatk_annotate_job.addChild(gatk_filter_job)
-        gatk_filter_job.addChild(snpeff_job)
-        snpeff_job.addChild(vcfanno_job)
-
-    root_job.addFollowOn(fastqc_job)
+    # root_job.addFollowOn(fastqc_job)
 
     # Start workflow execution
     Job.Runner.startToil(root_job, args)
