@@ -20,7 +20,7 @@ def spawn_batch_jobs(job):
 
 
 def create_file(job, fpath):
-    job.writeGlobalFile(fpath)
+    job.fileStore.writeGlobalFile(fpath)
 
 
 if __name__ == "__main__":
