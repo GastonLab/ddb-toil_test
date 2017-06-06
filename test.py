@@ -81,7 +81,7 @@ def run_bwa_mem(job, config, name, samples):
            "{}".format(samples[name]['fastq1']),
            "{}".format(samples[name]['fastq2']),
            ">",
-           "{}.aligned.sam"]
+           "{}.aligned.sam".format(sample)]
 
     command = " ".join(cmd)
     job.fileStore.logToMaster("BWA Command: {}\n".format(command))
