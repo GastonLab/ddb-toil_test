@@ -80,26 +80,12 @@ def run_bwa_mem(job, config, name, samples):
            "{}".format(config['reference']),
            "{}".format(samples[name]['fastq1']),
            "{}".format(samples[name]['fastq2']),
-           "|",
-           "{}".format(config['samtools']['bin']),
-           "view",
-           "-u",
-           "-",
-           "{}".format(config['samtools']['bin']),
-           "sort",
-           "-@",
-           "24",
-           "-O",
-           "bam",
-           "-o",
-           "{}".format(output_bam),
-           "-T",
-           "{}".format(temp),
-           "-"]
+           ">",
+           "{}.aligned.sam"]
 
     command = " ".join(cmd)
     job.fileStore.logToMaster("BWA Command: {}\n".format(command))
-    p = subprocess.call(command, shell=True)
+    subprocess.check_call(cmd)
 
     return output_bam
 
