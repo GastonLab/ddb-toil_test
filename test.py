@@ -49,7 +49,7 @@ def run_and_log_command(command, logfile):
                                "Please check the logfile {} for details\n".format(command, logfile))
 
 
-def run_bwa_mem(job, config, sample, samples):
+def run_bwa_mem(job, workdir, config, sample, samples):
     """Run GATK's DiagnoseTargets against the supplied region
 
     :param config: The configuration dictionary.
@@ -86,8 +86,7 @@ def run_bwa_mem(job, config, sample, samples):
     command = " ".join(cmd)
     job.fileStore.logToMaster("BWA Command: {}\n".format(command))
     subprocess.check_call(command, shell=True)
-
-    return output_bam
+    return job.fileStore.writeGlobalFile(os.path.join(workdir, "{}.aligned.sam".format(sample)))
 
 
 if __name__ == "__main__":
@@ -110,7 +109,8 @@ if __name__ == "__main__":
 
     for sample in samples:
         fname = "{}/{}.txt".format(cwd, sample)
-        align_job = Job.wrapJobFn(run_bwa_mem, config, sample, samples, cores=24,
+        align_job = Job.wrapJobFn(run_bwa_mem, cwd, config, sample, samples,
+                                  cores=24,
                                   memory="112G".format(config['bwa']['max_mem']))
 
         root_job.addChild(align_job)
