@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from toil.job import Job
 import os
 
