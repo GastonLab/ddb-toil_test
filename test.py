@@ -49,7 +49,7 @@ def run_and_log_command(command, logfile):
                                "Please check the logfile {} for details\n".format(command, logfile))
 
 
-def run_bwa_mem(job, config, name, samples):
+def run_bwa_mem(job, config, sample, samples):
     """Run GATK's DiagnoseTargets against the supplied region
 
     :param config: The configuration dictionary.
@@ -64,11 +64,11 @@ def run_bwa_mem(job, config, name, samples):
 
     """
 
-    job.fileStore.logToMaster("Running BWA for sample {}\n".format(name))
+    job.fileStore.logToMaster("Running BWA for sample {}\n".format(sample))
 
-    output_bam = "{}.bwa.sorted.bam".format(name)
-    temp = "{}.bwa.sort.temp".format(name)
-    logfile = "{}.bwa-align.log".format(name)
+    output_bam = "{}.bwa.sorted.bam".format(sample)
+    temp = "{}.bwa.sort.temp".format(sample)
+    logfile = "{}.bwa-align.log".format(sample)
 
     cmd = ["{}".format(config['bwa']['bin']),
            "mem",
@@ -78,8 +78,8 @@ def run_bwa_mem(job, config, name, samples):
            "-v",
            "2",
            "{}".format(config['reference']),
-           "{}".format(samples[name]['fastq1']),
-           "{}".format(samples[name]['fastq2']),
+           "{}".format(samples[sample]['fastq1']),
+           "{}".format(samples[sample]['fastq2']),
            ">",
            "{}.aligned.sam".format(sample)]
 
